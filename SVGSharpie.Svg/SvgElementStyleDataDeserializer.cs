@@ -38,6 +38,18 @@ namespace SVGSharpie
             ["stroke-dashoffset"] = CreateParserAndSetterForNullable(v => new SvgLength(v, SvgLengthContext.Null), s => s.StrokeDashOffset),
 
             ["shape-rendering"] = (s, v) => { /* nop */ },
+            ["font-size"] = CreateParserAndSetterForNullable(v => new SvgLength(v, SvgLengthContext.Null), s => s.FontSize),
+            ["font-family"] = (s, v) =>
+            {
+                if (v.IsInherit)
+                {
+                    s.FontFamily = null;
+                }
+                else
+                {
+                    s.FontFamily = new StyleProperty<string[]>(v.Value.Split(new[] { ',' }).Select(x => x.Trim(' ', '\'', '"')).ToArray(), v.IsImportant);
+                }
+            },
 
             ["opacity"] = (s, v) =>
             {

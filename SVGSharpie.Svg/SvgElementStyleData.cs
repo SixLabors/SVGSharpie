@@ -100,11 +100,13 @@ namespace SVGSharpie
         /// a percentage of the current viewport.
         /// </summary>
         public StyleProperty<SvgLength>? FontSize { get; set; }
-        
+
         /// <summary>
         /// Gets or sets the current font family.
         /// </summary>
-        public StyleProperty<string[]>? FontFamily { get; set; }
+        public StyleProperty<string[]> FontFamily { get; set; }
+
+        public StyleProperty<CssTextAnchorType>? TextAnchor { get; set; }
 
         public void Populate(string styleStr) => SvgElementStyleDataDeserializer.Populate(this, styleStr);
 

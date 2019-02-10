@@ -43,14 +43,14 @@ namespace SVGSharpie
             {
                 if (v.IsInherit)
                 {
-                    s.FontFamily = null;
+                    s.FontFamily = StyleProperty.Create(new string[0]);
                 }
                 else
                 {
-                    s.FontFamily = new StyleProperty<string[]>(v.Value.Split(new[] { ',' }).Select(x => x.Trim(' ', '\'', '"')).ToArray(), v.IsImportant);
+                    s.FontFamily = StyleProperty.Create(v.Value.Split(new[] { ',' }).Select(x => x.Trim(' ', '\'', '"')).ToArray());
                 }
             },
-
+            ["text-anchor"] = CreateXmlEnumParserAndSetter(c => c.TextAnchor),
             ["opacity"] = (s, v) =>
             {
                 StyleProperty<float>? value;
@@ -81,7 +81,8 @@ namespace SVGSharpie
             {
                 if (!TryPopulateProperty(result, property.Key, property.Value))
                 {
-                    throw new Exception($"Unknown style property '{property.Key}' with value '{property.Value}'");
+                    // skip unrecognised
+                    // throw new Exception($"Unknown style property '{property.Key}' with value '{property.Value}'");
                 }
             }
             return result;

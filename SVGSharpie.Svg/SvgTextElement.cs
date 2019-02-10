@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Xml.Serialization;
 
 namespace SVGSharpie
@@ -12,6 +13,11 @@ namespace SVGSharpie
     [XmlType("text", Namespace = SvgDocument.SvgNs)]
     public sealed class SvgTextElement : SvgGraphicsElement
     {
+        public SvgTextElement()
+        {
+            Children = new SvgElementList(this);
+        }
+
         public override SvgRect? GetBBox() => throw new NotImplementedException();
 
         /// <inheritdoc cref="SvgElement.Accept"/>
@@ -21,9 +27,6 @@ namespace SVGSharpie
         public override TResult Accept<TResult>(SvgElementVisitor<TResult> visitor) => visitor.VisitTextElement(this);
 
         protected override SvgElement CreateClone() => new SvgTextElement();
-
-        [XmlText]
-        public string Text { get; set; }
 
         /// <summary>
         /// Gets or sets the x-axis coordinate of the side of the rectangle which has the smaller x-axis coordinate 
@@ -61,5 +64,48 @@ namespace SVGSharpie
             set => Y = !string.IsNullOrEmpty(value) ? (SvgLength?)new SvgLength(value, this, SvgLengthDirection.Vertical) : null;
         }
 
+        internal override IEnumerable<SvgElement> GetChildren() => Children;
+
+        [XmlIgnore]
+        public SvgElementList Children { get; }
+
+        [XmlText(typeof(string))]
+        [XmlElement(typeof(SvgTextSpanElement), ElementName = "tspan")]
+        public object[] AllChildren
+        {
+            get
+            {
+                return Children.Select(x => (x is SvgInlineTextSpanElement a ? a.Text : (object)x)).ToArray();
+            }
+            set
+            {
+                if (value != null)
+                {
+                    foreach (var c in value)
+                    {
+                        if (c is string t)
+                        {
+                            Children.Add(new SvgInlineTextSpanElement() { Text = t });
+                        }
+                        else if (c is SvgElement elm)
+                        {
+                            Children.Add(elm);
+                        }
+                    }
+                }
+                else
+                {
+                    Children.Clear();
+                }
+            }
+        }
+
+        public override string ToString()
+        {
+            var builder = new StringBuilder("<text");
+            builder.Append(">");
+            builder.Append(string.Join(string.Empty, Children));
+            return builder.Append("</text>").ToString();
+        }
     }
 }
